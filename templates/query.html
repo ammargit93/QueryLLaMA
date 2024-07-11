@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Query Documents</title>
+</head>
+<body>
+    <h1>Query Document: {{ filename }}</h1>
+    <form id="queryForm" method="post" action="/query/<filename>">
+        <input type="text" id="query" name="query" placeholder="Enter your query" />
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if responses %}
+        <h2>Previous Queries and Answers:</h2>
+        <ul>
+            {% for response in responses %}
+                <li>
+                    <strong>Query:</strong> {{ response['query'] }}<br>
+                    <strong>Answer:</strong> {{ response['answer'] }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('queryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const query = document.getElementById('query').value;
+            const response = await fetch('/ask_pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query, filename: "{{ filename }}" }),
+            });
+            const result = await response.json();
+            document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+        });
+    </script>
+</body>
+</html>
